@@ -173,11 +173,21 @@ public class JSONSound {
     public JSONObject toJSON() throws JSONException {
         JSONObject object = new JSONObject();
         object.accumulate("name", _name);
-        object.accumulate("volume", _volume);
-        object.accumulate("pitch", _pitch);
-        object.accumulate("weight", _weight);
-        object.accumulate("stream", _stream);
-        object.accumulate("type", _type);
+
+        if (Double.compare(_volume, 1.0) != 0)
+            object.accumulate("volume", _volume);
+
+        if (Double.compare(_pitch, 1.0) != 0)
+            object.accumulate("pitch", _pitch);
+
+        if (Double.compare(_weight, 1.0) != 0)
+            object.accumulate("weight", _weight);
+
+        if (_stream)
+            object.accumulate("stream", true);
+
+        if (!_type.equals("sound"))
+            object.accumulate("type", _type);
 
         return object;
     }
