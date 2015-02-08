@@ -91,6 +91,18 @@ public class NucleusGenerator {
         writer.write('\'');
         writer.write('\n');
 
+        // write type (Guessing)
+        writer.write(INDENT);
+        writer.write("type: '");
+
+        if (sound.getTotalSeconds() < 10)
+            writer.write("effect");
+        else
+            writer.write("music");
+
+        writer.write('\'');
+        writer.write('\n');
+
         // write credit if any
         String credit = null;
         if (sound.getArtist() != null)
