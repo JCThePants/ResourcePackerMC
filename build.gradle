@@ -7,7 +7,7 @@ def minorVersion = '0'
 def buildBy = null // auto filled
 
 // target Java version
-def javaVersion = 1.7
+def javaVersion = 1.8
 
 // Maven repository url's
 def mavenRepositories = [
@@ -54,7 +54,7 @@ def snapshotDepends = null
 def sourceDir = 'src'
 
 // resource directory
-def resourceDir = null
+def resourceDir = 'src'
 
 // test source directory
 def testSourceDir = null
@@ -107,6 +107,8 @@ if (buildBy == null) {
 defaultTasks 'clean', 'build'
 
 apply plugin: 'java'
+apply from: 'javafx.plugin'
+
 compileJava.options.encoding = 'UTF-8'
 
 tasks.withType(JavaCompile) {
@@ -141,6 +143,12 @@ sourceSets {
             resources {
                 srcDir resourceDir
             }
+        }
+    }
+    samples {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
         }
     }
 
@@ -251,20 +259,6 @@ def manifestAttr = manifest {
             "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
             "Implementation-Title": projectName,
             "Implementation-Version": version)
-}
-
-// Jar file output with version number
-jar {
-
-    archiveName = projectName + '.' + version + '.jar'
-
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-
-    if (includeFiles) {
-        from includeFiles
-    }
-
-    manifest = manifestAttr
 }
 
 // Task to create a Jar file artifact with no version number
