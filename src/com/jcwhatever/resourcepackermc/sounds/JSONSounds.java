@@ -145,7 +145,7 @@ public class JSONSounds {
         return object;
     }
 
-    public void writeToFile(File file) throws IOException, JSONException {
+    public void write(File file) throws IOException, JSONException {
 
         if (file.exists())
             file.delete();
@@ -162,5 +162,14 @@ public class JSONSounds {
                 writer.write(json);
             }
         });
+    }
+
+    public void write(Appendable appendable) throws IOException, JSONException {
+
+        JSONObject object = toJSON();
+
+        final String json = object.toString(4);
+
+        appendable.append(json);
     }
 }

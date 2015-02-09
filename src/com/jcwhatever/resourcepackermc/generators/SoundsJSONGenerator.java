@@ -24,9 +24,11 @@
 
 package com.jcwhatever.resourcepackermc.generators;
 
+import com.jcwhatever.resourcepackermc.ResourcePackFiles;
 import com.jcwhatever.resourcepackermc.sounds.JSONSound;
 import com.jcwhatever.resourcepackermc.sounds.JSONSoundEvent;
 import com.jcwhatever.resourcepackermc.sounds.JSONSounds;
+import com.jcwhatever.resourcepackermc.sounds.MinecraftSounds;
 import com.jcwhatever.resourcepackermc.sounds.OggSound;
 
 import org.apache.sling.commons.json.JSONException;
@@ -39,49 +41,52 @@ import javax.annotation.Nullable;
 /**
  * Generates a Minecraft resource pack sound json file.
  */
-public class SoundsJSONGenerator {
-
-    private File _resourceFolder;
-    private File _soundsjson;
-
-    /**
-     * Constructor.
-     *
-     * @param resourceFolder  The uncompressed resource pack root folder.
-     * @param existingFile    The existing sounds.json file, if any. Used to include existing entries.
-     */
-    public SoundsJSONGenerator(File resourceFolder, @Nullable File existingFile) {
-        _resourceFolder = resourceFolder;
-        _soundsjson = existingFile;
-    }
+public class SoundsJSONGenerator implements IGenerator {
 
     /**
      * Get the sounds.json file object.
      */
-    public File getFile() {
-        if (_soundsjson == null) {
-            String soundsJsonPath = _resourceFolder.getAbsolutePath() +
-                    File.separatorChar + "assets" +
-                    File.separatorChar + "minecraft" +
-                    File.separatorChar + "sounds.json";
+    public static File getFile(File rootFolder) {
 
-            return new File(soundsJsonPath);
-        }
-        else {
-            return _soundsjson;
+        String soundsJsonPath = rootFolder.getAbsolutePath() +
+                File.separatorChar + "assets" +
+                File.separatorChar + "minecraft" +
+                File.separatorChar + "sounds.json";
+
+        return new File(soundsJsonPath);
+    }
+
+    @Override
+    public void generateFile(ResourcePackFiles packFiles, File root) {
+        generate(packFiles, getFile(root));
+    }
+
+    @Override
+    public void generate(ResourcePackFiles packFiles, File file) {
+
+        try {
+            JSONSounds sounds = getJsonSounds(packFiles, file);
+            sounds.write(file);
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Generate the sounds.json file.
-     *
-     * @param oggSounds  The sounds to include.
-     *
-     * @throws JSONException
-     */
-    public void generate(Collection<OggSound> oggSounds) throws JSONException {
+    @Override
+    public void generate(ResourcePackFiles packFiles, StringBuilder sb) {
+        try {
+            JSONSounds sounds = getJsonSounds(packFiles, null);
+            sounds.write(sb);
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-        JSONSounds sounds = new JSONSounds(_soundsjson);
+    private JSONSounds getJsonSounds(ResourcePackFiles packFiles, @Nullable File file) throws JSONException {
+
+        Collection<OggSound> oggSounds = MinecraftSounds.removeMinecraft(packFiles.getSounds());
+
+        JSONSounds sounds = new JSONSounds(file);
 
         // add sounds
         for (OggSound ogg : oggSounds) {
@@ -114,10 +119,6 @@ public class SoundsJSONGenerator {
             sounds.putSoundEvent(event.getName(), event);
         }
 
-        try {
-            sounds.writeToFile(getFile());
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+        return sounds;
     }
 }

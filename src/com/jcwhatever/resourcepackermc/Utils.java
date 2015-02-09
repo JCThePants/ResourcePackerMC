@@ -27,10 +27,12 @@ package com.jcwhatever.resourcepackermc;
 import com.jcwhatever.resourcepackermc.sounds.OggSound;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
+import java.util.Scanner;
 
 /**
  * Static helper methods.
@@ -96,6 +98,65 @@ public class Utils {
                 }
             }
         }
+    }
+
+    /**
+     * Read a text file.
+     *
+     * @param file  The text file to read.
+     */
+    public static String scanTextFile(File file) {
+
+        StringBuilder result = new StringBuilder(100);
+
+        try {
+            Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
+
+            while (scanner.hasNextLine()) {
+
+                String line = scanner.nextLine();
+
+                if (result.length() > 0)
+                    result.append('\n');
+
+                result.append(line);
+            }
+
+            return result.toString();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    /**
+     * Find a file by case sensitive name. (Recursive)
+     *
+     * @param name    The name of the file.
+     * @param folder  THe folder to search in.
+     *
+     * @return  The file or null if not found.
+     */
+    public static File findFile(String name, File folder) {
+
+        File[] files = folder.listFiles();
+        if (files == null)
+            return null;
+
+        for (File file : files) {
+
+            if (file.isDirectory()) {
+                File result = findFile(name, file);
+                if (result != null)
+                    return result;
+            }
+            else if (file.getName().equals(name)) {
+                return file;
+            }
+        }
+
+        return null;
     }
 
     public static String escape(String str, char escapeChar) {

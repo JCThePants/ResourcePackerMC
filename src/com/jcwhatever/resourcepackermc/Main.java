@@ -26,8 +26,9 @@ package com.jcwhatever.resourcepackermc;
 
 import com.jcwhatever.resourcepackermc.generators.NucleusGenerator;
 import com.jcwhatever.resourcepackermc.generators.PackGenerator;
-import com.jcwhatever.resourcepackermc.generators.SoundInfoGenerator;
+import com.jcwhatever.resourcepackermc.generators.SoundsExtraTxtGenerator;
 import com.jcwhatever.resourcepackermc.generators.SoundsJSONGenerator;
+import com.jcwhatever.resourcepackermc.generators.SoundsTxtGenerator;
 import com.jcwhatever.resourcepackermc.sounds.MinecraftSounds;
 import com.jcwhatever.resourcepackermc.sounds.OggSound;
 
@@ -37,9 +38,12 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.sling.commons.json.JSONException;
 
-import net.lingala.zip4j.exception.ZipException;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.Collection;
@@ -47,7 +51,7 @@ import java.util.Collection;
 /**
  * Main console class.
  */
-public class Main {
+public class Main extends Application {
 
     static Options _options = new Options();
 
@@ -63,6 +67,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
+        if (args.length == 0) {
+            launch(args);
+            return;
+        }
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd;
@@ -106,36 +115,30 @@ public class Main {
         // generate/update sounds.json file
         if (cmd.hasOption("sounds")) {
 
-            SoundsJSONGenerator generator =
-                    new SoundsJSONGenerator(folder, files.getSoundsJson());
-            try {
-                generator.generate(extraSounds);
+            SoundsJSONGenerator generator = new SoundsJSONGenerator();
 
-                // add newly generated sounds.json files to files collection
-                if (files.getSoundsJson() == null) {
-                    File file = generator.getFile();
-                    files.getFiles().add(file);
-                }
+            generator.generate(files, SoundsJSONGenerator.getFile(folder));
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-                System.err.println("Error while generating sounds.json");
+            // add newly generated sounds.json files to files collection
+            if (files.getSoundsJson() == null) {
+                File file = SoundsJSONGenerator.getFile(folder);
+                files.getFiles().add(file);
             }
         }
 
         // Generate resource-sounds.yml
         if (cmd.hasOption("nucleus")) {
-            NucleusGenerator generator = new NucleusGenerator(extraSounds);
-            generator.generate(new File(Utils.getJarFolder(), "resource-sounds.yml"));
+            NucleusGenerator generator = new NucleusGenerator();
+            generator.generate(files, new File(Utils.getJarFolder(), "resource-sounds.yml"));
         }
 
         // Generate SOUNDS.TXT and SOUNDS_EXTRA.TXT
         if (cmd.hasOption("soundtxt")) {
-            SoundInfoGenerator generator = new SoundInfoGenerator(sounds);
+            SoundsTxtGenerator generator = new SoundsTxtGenerator();
 
             File tracksFile = new File(Utils.getJarFolder(), "SOUNDS.TXT");
 
-            generator.generate(tracksFile);
+            generator.generate(files, tracksFile);
             System.out.println("Generated SOUNDS.TXT");
 
             if (!files.getFiles().contains(tracksFile)) {
@@ -145,10 +148,10 @@ public class Main {
 
             if (!extraSounds.isEmpty()) {
 
-                SoundInfoGenerator extraGen = new SoundInfoGenerator(extraSounds);
+                SoundsExtraTxtGenerator extraGen = new SoundsExtraTxtGenerator();
                 File extraTracksFile = new File(Utils.getJarFolder(), "SOUNDS_EXTRA.TXT");
 
-                extraGen.generate(extraTracksFile);
+                extraGen.generate(files, extraTracksFile);
                 System.out.println("Generated SOUNDS_EXTRA.TXT");
 
                 if (!files.getFiles().contains(extraTracksFile)) {
@@ -163,13 +166,8 @@ public class Main {
             String filename = cmd.getOptionValue("zip");
             File file = new File(Utils.getJarFolder(), filename);
 
-            PackGenerator generator = new PackGenerator(files);
-            try {
-                generator.generate(file);
-            } catch (ZipException e) {
-                e.printStackTrace();
-                System.err.println("Error while generating ZIP file.");
-            }
+            PackGenerator generator = new PackGenerator();
+            generator.generate(files, file);
         }
     }
 
@@ -180,5 +178,15 @@ public class Main {
 
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("java -jar " + Utils.getJar().getName(), _options);
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        stage.setMinWidth(600);
+        stage.setMinWidth(400);
+        Parent root = FXMLLoader.load(getClass().getResource("/com/jcwhatever/resourcepackermc/gui/Main.fxml"));
+        stage.setTitle("ResourcePackerMC 0.1 beta");
+        stage.setScene(new Scene(root, 600, 400));
+        stage.show();
     }
 }

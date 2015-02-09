@@ -24,50 +24,58 @@
 
 package com.jcwhatever.resourcepackermc.generators;
 
+import com.jcwhatever.resourcepackermc.ResourcePackFiles;
 import com.jcwhatever.resourcepackermc.Utils;
 import com.jcwhatever.resourcepackermc.Utils.ITextWriteHandler;
+import com.jcwhatever.resourcepackermc.sounds.MinecraftSounds;
 import com.jcwhatever.resourcepackermc.sounds.OggSound;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * Generates Yaml file used by NucleusFramework's resource pack sound library.
  */
-public class NucleusGenerator {
+public class NucleusGenerator implements IGenerator {
 
     private static final String INDENT = "  ";
 
-    private final Collection<OggSound> _sounds;
-
-    /**
-     * Constructor.
-     *
-     * @param sounds  The sounds to include in the file.
-     */
-    public NucleusGenerator(Collection<OggSound> sounds) {
-
-        _sounds = new ArrayList<>(sounds);
+    @Override
+    public void generateFile(ResourcePackFiles packFiles, File root) {
+        File file = new File(root, "resource-sounds.yml");
+        generate(packFiles, file);
     }
 
-    /**
-     * Generate the yaml file.
-     *
-     * @param file  The output file.
-     */
-    public void generate(File file) {
+    @Override
+    public void generate(ResourcePackFiles files, File file) {
+
+        final Collection<OggSound> sounds = MinecraftSounds.removeMinecraft(files.getSounds());
 
         Utils.writeTextFile(file, new ITextWriteHandler() {
             @Override
             public void write(OutputStreamWriter writer) throws IOException {
-                for (OggSound sound : _sounds) {
+                for (OggSound sound : sounds) {
                     writeSound(writer, sound);
                 }
             }
         });
+    }
+
+    @Override
+    public void generate(ResourcePackFiles files, StringBuilder sb) {
+
+        Collection<OggSound> sounds = MinecraftSounds.removeMinecraft(files.getSounds());
+
+        try {
+            for (OggSound sound : sounds) {
+                writeSound(sb, sound);
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -78,30 +86,30 @@ public class NucleusGenerator {
      *
      * @throws IOException
      */
-    private void writeSound(OutputStreamWriter writer, OggSound sound) throws IOException {
+    private void writeSound(Appendable writer, OggSound sound) throws IOException {
 
-        writer.write(sound.getEventName());
-        writer.write(':');
-        writer.write('\n');
+        writer.append(sound.getEventName());
+        writer.append(':');
+        writer.append('\n');
 
         // write title
-        writer.write(INDENT);
-        writer.write("title: '");
-        writer.write(sound.getTitle() != null ? sound.getTitle() : sound.getEventName());
-        writer.write('\'');
-        writer.write('\n');
+        writer.append(INDENT);
+        writer.append("title: '");
+        writer.append(sound.getTitle() != null ? sound.getTitle() : sound.getEventName());
+        writer.append('\'');
+        writer.append('\n');
 
         // write type (Guessing)
-        writer.write(INDENT);
-        writer.write("type: '");
+        writer.append(INDENT);
+        writer.append("type: '");
 
         if (sound.getTotalSeconds() < 10)
-            writer.write("effect");
+            writer.append("effect");
         else
-            writer.write("music");
+            writer.append("music");
 
-        writer.write('\'');
-        writer.write('\n');
+        writer.append('\'');
+        writer.append('\n');
 
         // write credit if any
         String credit = null;
@@ -111,19 +119,19 @@ public class NucleusGenerator {
             credit = sound.getPerformer();
 
         if (credit != null) {
-            writer.write(INDENT);
-            writer.write("credit: '");
-            writer.write(Utils.escape(credit, '\''));
-            writer.write('\'');
-            writer.write('\n');
+            writer.append(INDENT);
+            writer.append("credit: '");
+            writer.append(Utils.escape(credit, '\''));
+            writer.append('\'');
+            writer.append('\n');
         }
 
         // write duration
-        writer.write(INDENT);
-        writer.write("duration: ");
-        writer.write(String.valueOf(sound.getTotalSeconds()));
-        writer.write('\n');
+        writer.append(INDENT);
+        writer.append("duration: ");
+        writer.append(String.valueOf(sound.getTotalSeconds()));
+        writer.append('\n');
 
-        writer.write('\n');
+        writer.append('\n');
     }
 }

@@ -25,51 +25,26 @@
 package com.jcwhatever.resourcepackermc.generators;
 
 import com.jcwhatever.resourcepackermc.ResourcePackFiles;
-
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
+import com.jcwhatever.resourcepackermc.sounds.MinecraftSounds;
+import com.jcwhatever.resourcepackermc.sounds.OggSound;
 
 import java.io.File;
+import java.util.Collection;
 
 /**
- * Generates resource pack zip file.
+ * Generates a text file with information about extra
+ * sounds that do not replace minecraft sounds.
  */
-public class PackGenerator implements IGenerator {
+public class SoundsExtraTxtGenerator extends SoundsTxtGenerator {
 
     @Override
     public void generateFile(ResourcePackFiles packFiles, File root) {
-        File file = new File(root, "pack.zip");
+        File file = new File(root, "SOUNDS_EXTRA.TXT");
         generate(packFiles, file);
     }
 
     @Override
-    public void generate(ResourcePackFiles packFiles, File file) {
-
-        if (file.exists())
-            file.delete();
-
-        try {
-            ZipFile zip = new ZipFile(file);
-            zip.setFileNameCharset("UTF-8");
-
-            ZipParameters parameters = new ZipParameters();
-            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-            //parameters.setDefaultFolderPath(zipPath.isEmpty() ? File.separator : zipPath);
-            parameters.setDefaultFolderPath(packFiles.getRootFolder().getAbsolutePath());
-
-            zip.addFiles(packFiles.getFiles(), parameters);
-
-        }
-        catch (ZipException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void generate(ResourcePackFiles packFiles, StringBuilder sb) {
-        throw new UnsupportedOperationException();
+    protected Collection<OggSound> getSounds(ResourcePackFiles files) {
+        return MinecraftSounds.removeMinecraft(files.getSounds());
     }
 }

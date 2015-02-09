@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
+
+<!--
+  ~ This file is part of ResourcePackerMC for Bukkit, licensed under the MIT License (MIT).
+  ~
+  ~ Copyright (c) JCThePants (www.jcwhatever.com)
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+
+<AnchorPane
+        xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.jcwhatever.resourcepackermc.gui.Controller">
+
+    <VBox AnchorPane.topAnchor="5" AnchorPane.bottomAnchor="3" AnchorPane.rightAnchor="3" AnchorPane.leftAnchor="3"
+          spacing="5">
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+
+            <Button text="Open" fx:id="btnOpenResourceFolder"
+                    onAction="#onOpenResourceFolder" disable="true">
+                <tooltip>
+                    <Tooltip text="Open the selected resource folder."/>
+                </tooltip>
+            </Button>
+
+            <Button text="Select Resource Folder" onAction="#onSelectResourceFolder">
+                <tooltip>
+                    <Tooltip text="Select the root resource folder."/>
+                </tooltip>
+            </Button>
+
+            <Label text="No folder selected" fx:id="labelResourceFolder" />
+
+        </HBox>
+
+        <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
+
+            <TreeView fx:id="treeViewFiles" minWidth="200" SplitPane.resizableWithParent="false" />
+
+            <Accordion fx:id="accordion" minWidth="200">
+                <panes>
+
+                    <!-- Files Pane -->
+                    <TitledPane text="Files" animated="true" fx:id="pane1">
+                        <tooltip>
+                            <Tooltip text="Manage files in the resource folder."/>
+                        </tooltip>
+
+                        <VBox spacing="10">
+
+                            <Button text="Refresh Files" fx:id="btnRefreshFiles" disable="true"
+                                    onAction="#onRefreshFiles"
+                                    prefHeight="25.0" prefWidth="137.0" minWidth="137.0">
+                                <tooltip>
+                                    <Tooltip text="Refresh the view of files in the resource folder tree view."/>
+                                </tooltip>
+                            </Button>
+
+                            <Button text="Open" fx:id="btnOpenFile" disable="true"
+                                    onAction="#onOpenFile"
+                                    prefHeight="25.0" prefWidth="137.0" minWidth="137.0">
+                                <tooltip>
+                                    <Tooltip text="Open the selected file or folder."/>
+                                </tooltip>
+                            </Button>
+
+                            <Button text="Open in folder" fx:id="btnOpenInFolder" disable="true"
+                                    onAction="#onOpenInFolder"
+                                    prefHeight="25.0" prefWidth="137.0" minWidth="137.0">
+                                <tooltip>
+                                    <Tooltip text="Open the folder that the selected file or folder is in."/>
+                                </tooltip>
+                            </Button>
+
+                            <Button text="ZIP Resource Pack" fx:id="btnZipResourcePack" disable="true"
+                                    onAction="#onZipResourcePack"
+                                    prefHeight="25.0" prefWidth="137.0" minWidth="137.0">
+                                <tooltip>
+                                    <Tooltip text="Create a resource pack zip file that can be used in Minecraft."/>
+                                </tooltip>
+                            </Button>
+                        </VBox>
+                    </TitledPane>
+
+
+                    <!-- sounds.json Pane -->
+                    <TitledPane text="sounds.json" animated="true">
+                        <tooltip>
+                            <Tooltip text="Manages sounds.json file. This is the file used by Minecraft and specifies sound events."/>
+                        </tooltip>
+
+                        <HBox fillHeight="true">
+                            <VBox spacing="1">
+
+                                <Button text="Generate" fx:id="btnGenerateSoundsJson" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Generate a new sounds.json file in the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Reload" fx:id="btnReloadSoundsJson" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Reload the existing sounds.json file into the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Save" fx:id="btnSaveSoundsJson" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Save the text in the text box on the right into the sounds.json file."/>
+                                    </tooltip>
+                                </Button>
+
+                            </VBox>
+
+                            <TextArea fx:id="textAreaSoundsJson" disable="true"
+                                      HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+                                      wrapText="false"
+                                      style="-fx-font-family:monospaced;-fx-font-size:1.1em;"
+                                    />
+                        </HBox>
+                    </TitledPane>
+
+
+                    <!-- SOUNDS.TXT Pane -->
+                    <TitledPane text="SOUNDS.TXT" animated="true">
+                        <tooltip>
+                            <Tooltip text="Manage SOUNDS.TXT file. This file contains information about all of the sounds in the resource pack."/>
+                        </tooltip>
+
+                        <HBox fillHeight="true">
+                            <VBox spacing="1">
+
+                                <Button text="Generate" fx:id="btnGenerateSoundsTxt" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Generate a new SOUNDS.TXT file in the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Reload" fx:id="btnReloadSoundsTxt" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Reload the existing SOUNDS.TXT file into the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Save" fx:id="btnSaveSoundsTxt" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Save the text from the textbox on the right into the SOUNDS.TXT file."/>
+                                    </tooltip>
+                                </Button>
+                            </VBox>
+
+                            <TextArea fx:id="textAreaSoundsTxt" disable="true"
+                                      HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+                                      wrapText="false"
+                                      style="-fx-font-family:monospaced;-fx-font-size:1.1em;"
+                                    />
+                        </HBox>
+                    </TitledPane>
+
+
+                    <!-- SOUNDS_EXTRA.TXT Pane -->
+                    <TitledPane text="SOUNDS_EXTRA.TXT" animated="true">
+                        <tooltip>
+                            <Tooltip text="Manage the SOUNDS_EXTRA.TXT file. This file contains info about extra sounds in the resource pack that do not replace existing Minecraft sounds."/>
+                        </tooltip>
+                        <HBox fillHeight="true">
+                            <VBox spacing="1">
+
+                                <Button text="Generate" fx:id="btnGenerateSoundsExtraTxt" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Generate a new SOUNDS_EXTRA.TXT file in the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Reload" fx:id="btnReloadSoundsExtraTxt" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Reload the existing SOUNDS_EXTRA.TXT file into the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Save" fx:id="btnSaveSoundsExtraTxt" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0" >
+                                    <tooltip>
+                                        <Tooltip text="Save the text from the textbox on the right into the SOUNDS_EXTRA.TXT file."/>
+                                    </tooltip>
+                                </Button>
+                            </VBox>
+
+                            <TextArea fx:id="textAreaSoundsExtraTxt" disable="true"
+                                      HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+                                      wrapText="false"
+                                      style="-fx-font-family:monospaced;-fx-font-size:1.1em;"
+                                    />
+                        </HBox>
+                    </TitledPane>
+
+
+                    <TitledPane text="resource-sounds.yml" animated="true">
+                        <tooltip>
+                            <Tooltip text="Manage resource-sounds.yml file. This is a file used by NucleusFramework's sound lib to determine what sounds are available in the servers resource pack."/>
+                        </tooltip>
+                        <HBox fillHeight="true">
+                            <VBox spacing="1">
+
+                                <Button text="Generate" fx:id="btnGenerateResourceSoundsYml" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Generate a new resource-sounds.yml file in the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Reload" fx:id="btnReloadResourceSoundsYml" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Reload the existing resource-sounds.yml file into the text box on the right."/>
+                                    </tooltip>
+                                </Button>
+
+                                <Button text="Save" fx:id="btnSaveResourceSoundsYml" disable="true"
+                                        prefHeight="25.0" prefWidth="137.0" minWidth="80.0">
+                                    <tooltip>
+                                        <Tooltip text="Save the text from the text box on the right into the resource-sounds.yml file."/>
+                                    </tooltip>
+                                </Button>
+                            </VBox>
+
+                            <TextArea fx:id="textAreaResourceSoundsYml" disable="true"
+                                      HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+                                      wrapText="false"
+                                      style="-fx-font-family:monospaced;-fx-font-size:1.1em;"
+                                    />
+                        </HBox>
+                    </TitledPane>
+                </panes>
+            </Accordion>
+        </SplitPane>
+
+    </VBox>
+
+</AnchorPane>
+

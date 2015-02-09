@@ -26,50 +26,36 @@ package com.jcwhatever.resourcepackermc.generators;
 
 import com.jcwhatever.resourcepackermc.ResourcePackFiles;
 
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
-
 import java.io.File;
 
 /**
- * Generates resource pack zip file.
+ * Interface for a file generator.
  */
-public class PackGenerator implements IGenerator {
+public interface IGenerator {
 
-    @Override
-    public void generateFile(ResourcePackFiles packFiles, File root) {
-        File file = new File(root, "pack.zip");
-        generate(packFiles, file);
-    }
+    /**
+     * Generate the file in the default location.
+     *
+     * @param packFiles  The resource pack files.
+     * @param root       The root resource folder.
+     */
+    public void generateFile(ResourcePackFiles packFiles, File root);
 
-    @Override
-    public void generate(ResourcePackFiles packFiles, File file) {
+    /**
+     * Generate the file.
+     *
+     * @param packFiles  The resource pack files.
+     * @param file       The output file.
+     */
+    public void generate(ResourcePackFiles packFiles, File file);
 
-        if (file.exists())
-            file.delete();
+    /**
+     * Generate the file into a {@code StringBuilder}.
+     *
+     * @param packFiles  The resource pack files.
+     * @param sb         The {@code StringBuilder} to append the output to.
+     */
+    public void generate(ResourcePackFiles packFiles, StringBuilder sb);
 
-        try {
-            ZipFile zip = new ZipFile(file);
-            zip.setFileNameCharset("UTF-8");
 
-            ZipParameters parameters = new ZipParameters();
-            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-            //parameters.setDefaultFolderPath(zipPath.isEmpty() ? File.separator : zipPath);
-            parameters.setDefaultFolderPath(packFiles.getRootFolder().getAbsolutePath());
-
-            zip.addFiles(packFiles.getFiles(), parameters);
-
-        }
-        catch (ZipException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void generate(ResourcePackFiles packFiles, StringBuilder sb) {
-        throw new UnsupportedOperationException();
-    }
 }
