@@ -1,7 +1,10 @@
 # ResourcePackerMC
 Utility to zip a Minecraft resource pack folder into a zip file. Optionally generates zip file, sounds.json, sounds.txt and NucleusFramework sound definitions.
 
-The jar file can be generated using the gradle script included in the repository.
+The jar file can be generated using the gradle script included in the repository. Requires Java 8.
+
+## GUI
+ResourcePackerMC was originally intended for console and script use, but it also includes a GUI. To use the GUI, simply run the program without any parameters: `java -jar ResourcePackerMC.jar`
 
 ## Generating a zipped resource pack
 The resource packer assumes that you have created your resource pack in the required folder structure. The easiest way to use the jar is to place it into your resource folders root. From there you can open a console (or create a script) and use the following to simply zip the folder structure: `java -jar ResourcePackerMC.jar -zip MyResourcePack.zip`
