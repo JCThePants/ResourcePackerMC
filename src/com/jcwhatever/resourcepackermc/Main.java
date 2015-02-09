@@ -185,7 +185,7 @@ public class Main extends Application {
         stage.setMinWidth(600);
         stage.setMinWidth(400);
         Parent root = FXMLLoader.load(getClass().getResource("/com/jcwhatever/resourcepackermc/gui/Main.fxml"));
-        stage.setTitle("ResourcePackerMC 0.1 beta");
+        stage.setTitle("ResourcePackerMC 0.2 beta");
         stage.setScene(new Scene(root, 600, 400));
         stage.show();
     }

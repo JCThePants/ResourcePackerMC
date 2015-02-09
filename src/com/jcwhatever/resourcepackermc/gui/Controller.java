@@ -46,7 +46,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -56,16 +55,22 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
-import javax.annotation.Nullable;
 
 /**
  * The GUI controller.
  */
 public class Controller implements Initializable {
+
+    private static Controller _instance;
+
+    /**
+     * Get the latest instance of the {@code Controller}.
+     */
+    public static Controller getInstance() {
+        return _instance;
+    }
 
     private List<EditorController> _editorControllers = new ArrayList<>(4);
 
@@ -97,7 +102,7 @@ public class Controller implements Initializable {
     @FXML Button btnReloadResourceSoundsYml;
     @FXML Button btnSaveResourceSoundsYml;
 
-    @FXML TreeView<String> treeViewFiles;
+    @FXML FileTree fileTree;
     @FXML TitledPane pane1;
     @FXML Accordion accordion;
 
@@ -106,6 +111,9 @@ public class Controller implements Initializable {
     @FXML TextArea textAreaSoundsExtraTxt;
     @FXML TextArea textAreaResourceSoundsYml;
 
+    public Controller() {
+        _instance = this;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -135,7 +143,7 @@ public class Controller implements Initializable {
         loadEditor(new EditorController(resourceSounds, "resource-sounds.yml"));
 
 
-        treeViewFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
+        fileTree.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
             @Override
             public void changed(ObservableValue<? extends TreeItem<String>> observableValue,
                                 TreeItem<String> stringTreeItem, TreeItem<String> t1) {
@@ -186,7 +194,7 @@ public class Controller implements Initializable {
     @FXML
     protected void onOpenInFolder(ActionEvent event) {
 
-        FileTreeItem item = (FileTreeItem)treeViewFiles.getSelectionModel().getSelectedItem();
+        FileTreeItem item = (FileTreeItem) fileTree.getSelectionModel().getSelectedItem();
 
         if (item == null)
             return;
@@ -205,7 +213,7 @@ public class Controller implements Initializable {
     @FXML
     protected void onOpenFile(ActionEvent event) {
 
-        FileTreeItem item = (FileTreeItem)treeViewFiles.getSelectionModel().getSelectedItem();
+        FileTreeItem item = (FileTreeItem) fileTree.getSelectionModel().getSelectedItem();
 
         if (item == null)
             return;
@@ -232,54 +240,6 @@ public class Controller implements Initializable {
 
         PackGenerator generator = new PackGenerator();
         generator.generate(_files, file);
-    }
-
-    private FileTreeItem getFileNode(File file, @Nullable FileTreeItem parent) {
-
-        FileTreeItem root = new FileTreeItem(file);
-        if (parent != null)
-            parent.getChildren().add(root);
-
-        if (file.isDirectory()) {
-
-            File[] files = file.listFiles();
-            if (files != null) {
-
-                List<File> fileList = new ArrayList<>(files.length);
-                Collections.addAll(fileList, files);
-
-                Collections.sort(fileList, new Comparator<File>() {
-                    @Override
-                    public int compare(File o1, File o2) {
-
-                        if (!o1.isDirectory() || !o2.isDirectory()) {
-
-                            if (o1.isDirectory())
-                                return -1;
-
-                            if (o2.isDirectory())
-                                return 1;
-                        }
-
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                });
-
-                for (File childFile : fileList) {
-
-                    if (_files.getFiles().contains(childFile) || childFile.isDirectory()) {
-                        FileTreeItem childItem = getFileNode(childFile, root);
-
-                        // remove empty directory
-                        if (childFile.isDirectory() && childItem.getChildren().size() == 0) {
-                            root.getChildren().remove(childItem);
-                        }
-                    }
-                }
-            }
-        }
-
-        return root;
     }
 
     private void loadEditor(final EditorController controller) {
@@ -320,10 +280,7 @@ public class Controller implements Initializable {
 
         labelResourceFolder.setText(_folder.getAbsolutePath());
 
-        FileTreeItem item = getFileNode(folder, null);
-        item.setExpanded(true);
-
-        treeViewFiles.setRoot(item);
+        fileTree.refresh();
 
         // Enable buttons
         btnRefreshFiles.setDisable(false);

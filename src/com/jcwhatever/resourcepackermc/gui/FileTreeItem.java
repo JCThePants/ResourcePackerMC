@@ -28,17 +28,20 @@ import com.jcwhatever.resourcepackermc.gui.img.GuiImages;
 
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.io.File;
+import javax.annotation.Nullable;
 
 /**
  * A {@link TreeItem} implementation used for displaying files and directories.
  */
 public class FileTreeItem extends TreeItem<String> {
 
+    private final Controller _controller;
     private File _file;
     private boolean _isDirectory;
 
@@ -47,15 +50,14 @@ public class FileTreeItem extends TreeItem<String> {
      *
      * @param file  The represented file.
      */
-    public FileTreeItem(File file) {
+    public FileTreeItem(Controller controller, File file) {
         super(file.getName());
 
+        _controller = controller;
         _file = file;
         _isDirectory = file.isDirectory();
 
         if (_isDirectory) {
-            setImage(GuiImages.FOLDER);
-
             EventType<TreeModificationEvent<String>> type = TreeItem.branchExpandedEvent();
 
             addEventHandler(type, new EventHandler<TreeModificationEvent<String>>() {
@@ -64,38 +66,12 @@ public class FileTreeItem extends TreeItem<String> {
 
                     FileTreeItem source = (FileTreeItem) event.getSource();
 
-                    ImageView view = (ImageView) source.getGraphic();
-
-                    if (source.isExpanded()) {
-                        view.setImage(GuiImages.FOLDER_OPEN);
-                    } else {
-                        view.setImage(GuiImages.FOLDER);
-                    }
+                    source.setImage();
                 }
             });
         }
-        else {
-            String name = getValue().toLowerCase();
 
-            if (name.endsWith(".txt")) {
-                setImage(GuiImages.TEXT);
-            }
-            else if (name.endsWith(".png")) {
-                setImage(GuiImages.IMAGE);
-            }
-            else if (name.endsWith(".mcmeta")) {
-                setImage(GuiImages.MCMETA);
-            }
-            else if (name.endsWith(".json")) {
-                setImage(GuiImages.JSON);
-            }
-            else if (name.endsWith(".lang")) {
-                setImage(GuiImages.LANG);
-            }
-            else if (name.endsWith(".ogg")) {
-                setImage(GuiImages.AUDIO);
-            }
-        }
+        setImage();
     }
 
     /**
@@ -106,13 +82,115 @@ public class FileTreeItem extends TreeItem<String> {
     }
 
     /**
+     * Determine if the file or folder will be included in the resource pack.
+     */
+    public boolean isIncluded() {
+        return !_controller._files.getExcluded().contains(_file);
+    }
+
+    /**
+     * Set the include flag.
+     *
+     * @param isIncluded  True to include in resource pack, False to exclude.
+     */
+    public void setIncluded(boolean isIncluded) {
+
+        if (isIncluded) {
+            _controller._files.getExcluded().remove(_file);
+        }
+        else {
+            _controller._files.getExcluded().add(_file);
+        }
+
+        setImage();
+    }
+
+    /**
      * Get the represented file.
      */
     public File getFile() {
         return _file;
     }
 
+    private void setImage() {
+
+        if (!isIncluded()) {
+            setImage(GuiImages.STOP);
+            return;
+        }
+
+        if (_isDirectory) {
+
+            if (isExpanded())
+                setImage(GuiImages.FOLDER_OPEN);
+            else
+                setImage(GuiImages.FOLDER);
+
+            return;
+        }
+
+        Image image = getFileImage();
+        if (image != null)
+            setImage(image);
+    }
+
     private void setImage(Image image) {
-        setGraphic(new ImageView(image));
+        Node node = getGraphic();
+        ImageView view;
+
+        if (node instanceof ImageView) {
+            view = (ImageView) node;
+        }
+        else {
+            view = new ImageView();
+            setGraphic(view);
+        }
+
+        view.setImage(image);
+    }
+
+    /**
+     * Get the current image.
+     */
+    @Nullable
+    public Image getImage() {
+        ImageView view = (ImageView)getGraphic();
+        if (view == null)
+            return null;
+
+        return view.getImage();
+    }
+
+    /**
+     * Get the preferred image to use to represent the file.
+     */
+    @Nullable
+    public Image getFileImage() {
+
+        if (_isDirectory)
+            return GuiImages.FOLDER;
+
+        String name = getValue().toLowerCase();
+
+        if (name.endsWith(".txt")) {
+            return GuiImages.TEXT;
+        }
+        else if (name.endsWith(".png")) {
+            return GuiImages.IMAGE;
+        }
+        else if (name.endsWith(".mcmeta")) {
+            return GuiImages.MCMETA;
+        }
+        else if (name.endsWith(".json")) {
+            return GuiImages.JSON;
+        }
+        else if (name.endsWith(".lang")) {
+            return GuiImages.LANG;
+        }
+        else if (name.endsWith(".ogg")) {
+            return GuiImages.AUDIO;
+        }
+
+        return null;
     }
 }

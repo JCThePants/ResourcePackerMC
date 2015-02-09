@@ -48,6 +48,8 @@ public class ResourcePackFiles {
     private ArrayList<File> _filesToAdd = new ArrayList<>(100);
     private File _soundsjson;
 
+    private Set<File> _excluded = new HashSet<>(100);
+
     /**
      * Constructor.
      *
@@ -63,6 +65,13 @@ public class ResourcePackFiles {
         _includeExt.add("lang");
         _includeExt.add("json");
 
+        refresh();
+    }
+
+    /**
+     * Refresh files.
+     */
+    public void refresh() {
         iterateFiles(_folder, "");
     }
 
@@ -70,8 +79,15 @@ public class ResourcePackFiles {
      * Get files found. Direct reference. Files can be added or removed
      * from the returned {@code ArrayList}.
      */
-    public ArrayList<File> getFiles() {
+    public Collection<File> getFiles() {
         return _filesToAdd;
+    }
+
+    /**
+     * Get files that are found but excluded.
+     */
+    public Set<File> getExcluded() {
+        return _excluded;
     }
 
     /**

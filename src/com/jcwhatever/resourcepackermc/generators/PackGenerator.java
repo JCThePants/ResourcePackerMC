@@ -32,6 +32,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Generates resource pack zip file.
@@ -59,7 +60,10 @@ public class PackGenerator implements IGenerator {
             //parameters.setDefaultFolderPath(zipPath.isEmpty() ? File.separator : zipPath);
             parameters.setDefaultFolderPath(packFiles.getRootFolder().getAbsolutePath());
 
-            zip.addFiles(packFiles.getFiles(), parameters);
+            ArrayList<File> files = new ArrayList<>(packFiles.getFiles());
+            files.removeAll(packFiles.getExcluded());
+
+            zip.addFiles(files, parameters);
 
         }
         catch (ZipException e) {

@@ -40,6 +40,10 @@ public class GuiImages {
     public static final Image MCMETA = getImage("package-x-generic.png");
     public static final Image LANG = getImage("font-x-generic.png");
 
+    public static final Image DELETE = getImage("edit-delete.png");
+    public static final Image STOP = getImage("process-stop.png");
+    public static final Image OPEN = getImage("document-open.png");
+
     private static Image getImage(String name) {
         return new Image(ClassLoader.getSystemResourceAsStream("com/jcwhatever/resourcepackermc/gui/img/" + name));
     }
